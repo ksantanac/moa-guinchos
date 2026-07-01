@@ -67,22 +67,38 @@
   .nav-actions{display:flex;align-items:center;gap:14px;}
 
   /* HERO */
-  .hero{padding:40px 28px 0;position:relative;overflow:hidden;min-height:92vh;display:flex;align-items:center;}
+  .hero{
+    padding:40px 28px 0;position:relative;overflow:hidden;min-height:92vh;display:flex;align-items:center;
+    background:
+      radial-gradient(130% 90% at 50% -20%, #1a1d26 0%, #101219 34%, #0a0a0c 66%),
+      radial-gradient(90% 70% at 88% 8%, rgba(59,130,246,0.14), transparent 55%),
+      radial-gradient(80% 70% at 6% 100%, rgba(225,29,46,0.12), transparent 55%),
+      linear-gradient(180deg, transparent 62%, rgba(0,0,0,0.55) 100%);
+  }
+  /* holofote — light that follows the cursor */
+  .hero-spot{
+    position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .4s ease;
+    background:radial-gradient(circle 360px at var(--sx,50%) var(--sy,50%),
+      rgba(255,255,255,0.12), rgba(120,150,255,0.06) 40%, transparent 68%);
+    mix-blend-mode:screen;
+  }
   .hero::before{
-    content:'';position:absolute;inset:0;z-index:0;
+    content:'';position:absolute;inset:0;z-index:1;
     background:
       radial-gradient(ellipse 1000px 560px at 76% 42%, rgba(59,130,246,0.20), transparent 64%),
       radial-gradient(ellipse 820px 480px at 92% 88%, rgba(225,29,46,0.22), transparent 64%),
       radial-gradient(ellipse 600px 600px at 18% 18%, rgba(59,130,246,0.08), transparent 70%);
+    transform:translate3d(var(--hx,0px), var(--hy,0px), 0);
+    transition:transform .4s ease-out;
     animation:heroGlow 9s ease-in-out infinite alternate;
   }
   @keyframes heroGlow{
-    0%{opacity:0.75;transform:scale(1);}
-    100%{opacity:1;transform:scale(1.06);}
+    0%{opacity:0.72;}
+    100%{opacity:1;}
   }
   /* perspective road lines */
   .hero::after{
-    content:'';position:absolute;bottom:0;left:0;right:0;height:35%;z-index:0;pointer-events:none;
+    content:'';position:absolute;bottom:0;left:0;right:0;height:35%;z-index:1;pointer-events:none;
     background:
       linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 100%),
       repeating-linear-gradient(95deg, transparent 0 100px, rgba(255,255,255,0.04) 100px 101px);
@@ -90,7 +106,7 @@
     -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 60%);
   }
   .hero-grid{
-    position:relative;z-index:1;max-width:1440px;margin:0 auto;width:100%;
+    position:relative;z-index:2;max-width:1440px;margin:0 auto;width:100%;
     display:grid;grid-template-columns:0.82fr 1.18fr;gap:20px;align-items:center;
     padding-bottom:40px;
   }
@@ -115,13 +131,21 @@
   .hero-badge svg{width:14px;height:14px;color:var(--orange);}
 
   /* HERO ILLUSTRATION — truck + phone composition */
-  .hero-illu{position:relative;display:flex;align-items:center;justify-content:center;padding:0;min-height:600px;}
+  .hero-illu{position:relative;display:flex;align-items:center;justify-content:center;padding:0;min-height:600px;perspective:1200px;}
+  .illu-tilt{
+    position:relative;z-index:1;width:100%;display:flex;align-items:center;justify-content:center;
+    transform-style:preserve-3d;
+    transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateX(var(--tx,0px));
+    transition:transform .3s cubic-bezier(.2,.7,.2,1);will-change:transform;
+  }
   .hero-illu::before{
-    content:'';position:absolute;left:50%;top:50%;width:130%;height:100%;transform:translate(-50%,-50%);
+    content:'';position:absolute;left:-15%;top:0;width:130%;height:100%;
     background:
       radial-gradient(ellipse 55% 50% at 50% 48%, rgba(59,130,246,0.24), transparent 68%),
       radial-gradient(ellipse 70% 20% at 50% 92%, rgba(225,29,46,0.26), transparent 70%);
     pointer-events:none;z-index:0;
+    transform:translate3d(var(--ix,0px), var(--iy,0px), 0);
+    transition:transform .35s ease-out;
     animation:heroGlow 7s ease-in-out infinite alternate;
   }
   .illu-svg{
@@ -228,14 +252,35 @@
   .services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
   @media (max-width:980px){ .services-grid{grid-template-columns:repeat(2,1fr);} }
   @media (max-width:560px){ .services-grid{grid-template-columns:1fr;} }
-  .svc{background:var(--bg-2);padding:30px 26px;transition:background .2s ease, transform .2s ease;position:relative;}
-  .svc:hover{background:#1b1c21;transform:translateY(-2px);z-index:2;}
-  .svc .icon{width:40px;height:40px;border-radius:10px;background:rgba(225,29,46,0.14);display:flex;align-items:center;justify-content:center;margin-bottom:18px;transition:background .2s ease, transform .2s ease;}
-  .svc:hover .icon{background:var(--orange);transform:scale(1.08) rotate(-4deg);}
-  .svc .icon svg{width:20px;height:20px;color:var(--orange);transition:color .2s ease;}
-  .svc:hover .icon svg{color:#180b00;}
+  /* flip card 3D */
+  .svc{background:transparent;position:relative;min-height:212px;perspective:1100px;}
+  .svc-inner{
+    position:relative;width:100%;height:100%;min-height:212px;
+    transition:transform .65s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d;
+  }
+  .svc:hover .svc-inner, .svc:focus-within .svc-inner{transform:rotateY(180deg);}
+  /* touch devices: no hover — keep cards on the front, hide the hint */
+  @media (hover:none){
+    .svc:hover .svc-inner, .svc:focus-within .svc-inner{transform:none;}
+    .svc{min-height:auto;}
+    .flip-hint{display:none;}
+  }
+  .svc-face{
+    position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    background:var(--bg-2);padding:30px 26px;display:flex;flex-direction:column;
+  }
+  .svc-back{
+    transform:rotateY(180deg);justify-content:center;gap:14px;
+    background:linear-gradient(160deg,#1b1c21 0%, #141519 100%);
+  }
+  .svc-back .bk-line{font-size:13px;color:var(--muted);line-height:1.55;display:flex;align-items:flex-start;gap:8px;}
+  .svc-back .bk-line svg{width:15px;height:15px;color:var(--orange);flex:none;margin-top:2px;}
+  .svc-back a{align-self:flex-start;margin-top:4px;}
+  .svc .icon{width:40px;height:40px;border-radius:10px;background:rgba(225,29,46,0.14);display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+  .svc .icon svg{width:20px;height:20px;color:var(--orange);}
   .svc h3{font-size:15.5px;font-weight:700;margin-bottom:8px;}
   .svc p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+  .svc .flip-hint{margin-top:auto;font-size:11px;color:var(--muted-2);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:6px;}
 
   /* STATS CARDS */
   .stats-band{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
@@ -324,10 +369,29 @@
   }
   .wa-float{
     position:fixed;bottom:24px;right:24px;z-index:80;background:#22c55e;color:#fff;
-    width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;
     box-shadow:0 10px 26px rgba(0,0,0,0.45);
+    transition:box-shadow .25s ease, background .25s ease;
   }
-  .wa-float svg{width:27px;height:27px;}
+  /* sonar rings (animated via JS so they play regardless of OS motion settings) */
+  .wa-ring{
+    position:absolute;inset:0;border-radius:50%;border:2px solid rgba(34,197,94,0.55);
+    opacity:0;pointer-events:none;
+  }
+  .wa-float svg{width:29px;height:29px;position:relative;z-index:1;}
+  .wa-float:hover{background:#1eb350;box-shadow:0 14px 34px rgba(34,197,94,0.45);}
+  /* hover tooltip bubble */
+  .wa-tip{
+    position:absolute;right:74px;top:50%;transform:translateY(-50%) translateX(8px);
+    white-space:nowrap;background:#fff;color:#15130f;font-size:13px;font-weight:700;
+    padding:10px 16px;border-radius:12px;box-shadow:0 8px 22px rgba(0,0,0,0.35);
+    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
+  }
+  .wa-tip::after{
+    content:'';position:absolute;right:-6px;top:50%;transform:translateY(-50%);
+    border:6px solid transparent;border-left-color:#fff;
+  }
+  .wa-float:hover .wa-tip{opacity:1;transform:translateY(-50%) translateX(0);}
   @media (max-width:680px){ .wa-float{display:none;} }
 
   a:focus-visible, .btn:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
@@ -355,6 +419,7 @@
   </header>
 
   <section class="hero">
+    <div class="hero-spot" aria-hidden="true"></div>
     <div class="hero-grid">
       <div>
         <span class="pill"><span class="dot"></span> Atendimento 24h em São Paulo</span>
@@ -372,7 +437,9 @@
       </div>
 
       <div class="hero-illu">
-        <img class="illu-svg" src="assets/hero-truck.png" alt="Caminhão guincho Moa">
+        <div class="illu-tilt">
+          <img class="illu-svg" src="assets/hero-truck.png" alt="Caminhão guincho Moa">
+        </div>
       </div>
     </div>
 
@@ -402,24 +469,64 @@
     </div>
     <div class="services-grid">
       <div class="svc reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h13l3 5H3z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
-        <h3>Guincho particular</h3>
-        <p>Pane, acidente, bateria ou pneu furado, atendimento direto pra quem está na rua.</p>
+        <div class="svc-inner">
+          <div class="svc-face svc-front">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h13l3 5H3z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
+            <h3>Guincho particular</h3>
+            <p>Pane, acidente, bateria ou pneu furado, atendimento direto pra quem está na rua.</p>
+            <span class="flip-hint">Passe o mouse →</span>
+          </div>
+          <div class="svc-face svc-back">
+            <div class="bk-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Pane seca, bateria, pneu</div>
+            <div class="bk-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Acidente leve ou grave</div>
+            <a class="btn btn-cream btn-sm" href="https://wa.me/5511980402731?text=Oi%2C%20preciso%20de%20um%20guincho" target="_blank" rel="noopener">Chamar agora →</a>
+          </div>
+        </div>
       </div>
       <div class="svc reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/><path d="M14 21v-5a2 2 0 0 1 2-2h5"/></svg></div>
-        <h3>Reboque p/ seguradoras</h3>
-        <p>Atendimento de chamados como prestador terceirizado, com prazo combinado.</p>
+        <div class="svc-inner">
+          <div class="svc-face svc-front">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/><path d="M14 21v-5a2 2 0 0 1 2-2h5"/></svg></div>
+            <h3>Reboque p/ seguradoras</h3>
+            <p>Atendimento de chamados como prestador terceirizado, com prazo combinado.</p>
+            <span class="flip-hint">Passe o mouse →</span>
+          </div>
+          <div class="svc-face svc-back">
+            <div class="bk-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Prestador terceirizado</div>
+            <div class="bk-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Prazo e valor combinados</div>
+            <a class="btn btn-cream btn-sm" href="https://wa.me/5511980402731?text=Ol%C3%A1%2C%20tenho%20interesse%20em%20fechar%20parceria%20de%20guincho%20para%20minha%20empresa" target="_blank" rel="noopener">Fechar parceria →</a>
+          </div>
+        </div>
       </div>
       <div class="svc reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="7" rx="1"/><path d="M5 11l2-5h10l2 5"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></svg></div>
-        <h3>Transporte de veículos</h3>
-        <p>Entre pátio, oficina e cliente, com cuidado e sem rodar o carro à toa.</p>
+        <div class="svc-inner">
+          <div class="svc-face svc-front">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="7" rx="1"/><path d="M5 11l2-5h10l2 5"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></svg></div>
+            <h3>Transporte de veículos</h3>
+            <p>Entre pátio, oficina e cliente, com cuidado e sem rodar o carro à toa.</p>
+            <span class="flip-hint">Passe o mouse →</span>
+          </div>
+          <div class="svc-face svc-back">
+            <div class="bk-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Pátio ⇄ oficina ⇄ cliente</div>
+            <div class="bk-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Sem rodar o carro à toa</div>
+            <a class="btn btn-cream btn-sm" href="https://wa.me/5511980402731?text=Oi%2C%20preciso%20de%20um%20guincho" target="_blank" rel="noopener">Solicitar →</a>
+          </div>
+        </div>
       </div>
       <div class="svc reveal">
-        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-        <h3>Emergência 24h</h3>
-        <p>Madrugada, fim de semana ou feriado, o telefone fica ligado.</p>
+        <div class="svc-inner">
+          <div class="svc-face svc-front">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+            <h3>Emergência 24h</h3>
+            <p>Madrugada, fim de semana ou feriado, o telefone fica ligado.</p>
+            <span class="flip-hint">Passe o mouse →</span>
+          </div>
+          <div class="svc-face svc-back">
+            <div class="bk-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Madrugada, feriado, fim de semana</div>
+            <div class="bk-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Telefone sempre ligado</div>
+            <a class="btn btn-cream btn-sm" href="tel:+5511980402731">Ligar agora →</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -554,10 +661,16 @@
   </div>
 
   <a class="wa-float" href="https://wa.me/5511980402731?text=Oi%2C%20preciso%20de%20um%20guincho" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <span class="wa-ring"></span>
+    <span class="wa-ring"></span>
+    <span class="wa-tip">Precisa de guincho? Chama!</span>
     <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 2.667c-7.364 0-13.333 5.97-13.333 13.333 0 2.358.617 4.571 1.7 6.494l-1.8 6.572 6.74-1.77a13.27 13.27 0 0 0 6.693 1.804c7.364 0 13.333-5.97 13.333-13.333S23.365 2.667 16.001 2.667zm0 24.222a10.83 10.83 0 0 1-5.527-1.516l-.396-.235-3.78.992.999-3.687-.258-.378a10.85 10.85 0 0 1-1.704-5.866c0-6.013 4.893-10.906 10.906-10.906 6.013 0 10.906 4.893 10.906 10.906 0 6.013-4.893 10.69-10.906 10.69h-.24zm5.79-7.96c-.317-.159-1.877-.927-2.168-1.034-.29-.106-.5-.159-.71.16-.21.318-.815 1.033-1 1.244-.184.21-.369.238-.685.08-.317-.159-1.337-.493-2.547-1.575-.942-.842-1.578-1.882-1.763-2.2-.184-.317-.02-.49.137-.65.143-.144.317-.371.475-.557.16-.185.212-.318.318-.53.106-.21.053-.397-.04-.557-.094-.16-.844-2.026-1.157-2.776-.305-.733-.615-.633-.844-.645-.212-.012-.456-.014-.7-.014-.245 0-.633.092-.92.397-.286.305-1.1 1.073-1.1 2.616s1.127 3.034 1.284 3.245c.158.21 2.158 3.296 5.231 4.493 3.073 1.196 3.073.797 3.626.747.553-.05 1.788-.732 2.04-1.44.252-.71.252-1.318.176-1.44-.074-.121-.297-.198-.62-.357z"/></svg>
   </a>
 
   <script>
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Scroll reveal
     const reveals = document.querySelectorAll('.reveal');
     if ('IntersectionObserver' in window && reveals.length){
       const obs = new IntersectionObserver((entries)=>{
@@ -565,6 +678,73 @@
       }, { threshold: 0.12 });
       reveals.forEach(el=>obs.observe(el));
     } else { reveals.forEach(el=>el.classList.add('in')); }
+
+    // Hero: spotlight follows the cursor + truck tilts in 3D
+    const hero = document.querySelector('.hero');
+    const tilt = document.querySelector('.illu-tilt');
+    const spot = document.querySelector('.hero-spot');
+    if (hero && tilt && window.matchMedia('(pointer:fine)').matches){
+      let raf = null;
+      hero.addEventListener('mousemove', (e)=>{
+        const r = hero.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;   // -0.5 .. 0.5
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(()=>{
+          // truck tilts in 3D toward the cursor
+          tilt.style.setProperty('--ry', (px * 14).toFixed(2) + 'deg');
+          tilt.style.setProperty('--rx', (py * -9).toFixed(2) + 'deg');
+          tilt.style.setProperty('--tx', (px * 12).toFixed(1) + 'px');
+          // spotlight glow tracks the cursor
+          if (spot){
+            spot.style.setProperty('--sx', (e.clientX - r.left) + 'px');
+            spot.style.setProperty('--sy', (e.clientY - r.top) + 'px');
+            spot.style.opacity = '1';
+          }
+        });
+      });
+      hero.addEventListener('mouseleave', ()=>{
+        tilt.style.setProperty('--ry','0deg');
+        tilt.style.setProperty('--rx','0deg');
+        tilt.style.setProperty('--tx','0px');
+        if (spot) spot.style.opacity = '0';
+      });
+    }
+
+    // Subtle 3D tilt on stat cards and the "Em rota" card (cursor-driven)
+    if (window.matchMedia('(pointer:fine)').matches){
+      const addTilt = (el, maxDeg, lift)=>{
+        el.style.transformStyle = 'preserve-3d';
+        el.style.transition = 'transform .2s ease';
+        el.addEventListener('mousemove', (e)=>{
+          const r = el.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          el.style.transform =
+            `perspective(900px) rotateY(${(px*maxDeg).toFixed(2)}deg) rotateX(${(py*-maxDeg).toFixed(2)}deg) translateY(-${lift}px)`;
+        });
+        el.addEventListener('mouseleave', ()=>{ el.style.transform = ''; });
+      };
+      document.querySelectorAll('.stat-card').forEach(c=>addTilt(c, 8, 5));
+      const emRota = document.querySelector('.em-rota');
+      if (emRota) addTilt(emRota, 3.5, 4);
+    }
+
+    // WhatsApp button — lively bob + sonar rings (JS-driven so it always plays)
+    const wa = document.querySelector('.wa-float');
+    if (wa && wa.animate){
+      wa.animate(
+        [ {transform:'translateY(0)'}, {transform:'translateY(-12px)'}, {transform:'translateY(0)'} ],
+        { duration:2200, iterations:Infinity, easing:'ease-in-out' }
+      );
+      const rings = wa.querySelectorAll('.wa-ring');
+      rings.forEach((ring, i)=>{
+        ring.animate(
+          [ {transform:'scale(1)', opacity:0.55}, {transform:'scale(2.2)', opacity:0} ],
+          { duration:2200, iterations:Infinity, easing:'ease-out', delay:i*1100 }
+        );
+      });
+    }
   </script>
 
 </body>
