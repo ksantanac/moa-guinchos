@@ -26,4 +26,4 @@ Hospedado na Vercel. Cada push na branch `main` publica automaticamente.
 
 ## Contato do negócio
 
-WhatsApp / Telefone: (11) 98040-2731
+WhatsApp / Telefone: (11) 97887-5550
